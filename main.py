@@ -38,6 +38,16 @@ Pass 2: "said" became "told me", which tightens the boss's voice, and a
 trailing "and nobody has noticed yet" was tried and dropped — it explains
 the joke instead of letting the image land, and the line is stronger
 ending on the time.
+
+Revision note (Pass 3, 26 Nov 2026)
+-----------------------------------
+Refactor only; the entry line is unchanged, byte for byte. The line now
+has one home: `entry_line()` returns it, and `main()` reads it through
+that helper instead of reaching for the constant directly. The existing
+`check_gate` guard still validates the line before anything is written
+(1-200 characters, non-blank, single line), so the program's behaviour
+and its output file are exactly as before — only the code is easier to
+follow.
 """
 
 import os
@@ -61,6 +71,12 @@ def check_gate(text):
     return True
 
 
+def entry_line():
+    """Return the entry line. The joke text lives in exactly one place
+    (ENTRY above); every other part of the program reads it from here."""
+    return ENTRY
+
+
 def entry_path():
     """Output dir from the environment, falling back to /output."""
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
@@ -69,9 +85,10 @@ def entry_path():
 
 
 def main():
-    check_gate(ENTRY)
+    line = entry_line()
+    check_gate(line)
     with open(entry_path(), "w", encoding="utf-8") as f:
-        f.write(ENTRY + "\n")
+        f.write(line + "\n")
 
 
 if __name__ == "__main__":
